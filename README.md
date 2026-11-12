@@ -1,4 +1,4 @@
-# AI Automation Portf0li0
+# AI Automation Portfolio
 
 ### AI Automation Specialist | n8n | Make | AI Agents
 
