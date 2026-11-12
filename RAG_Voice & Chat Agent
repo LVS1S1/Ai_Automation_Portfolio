@@ -1,0 +1,75 @@
+# vOn GADGET Voice & Chat Agent (RAG + Voice Assistant)
+
+> **Demo project:** built for a fictional gadget store to demonstrate AI voice and chat automation.
+
+An AI automation built in **n8n** for an online gadgets and accessories store. It has two connected parts:
+
+1. **An ElevenLabs voice agent** that answers callers' enquiries, captures their details, books appointments and sends confirmations.
+2. **A RAG-powered chat agent** that answers questions from the business knowledge base instead of guessing.
+
+
+## The Problem
+
+Small online stores lose customers when calls and messages go unanswered, and staff waste hours repeating the same answers and copying details into spreadsheets by hand.
+
+## The Solution
+
+- Callers and customers get instant, accurate answers 24/7, by voice or chat.
+- Every answer comes from the business knowledge base, so the agent stays on-topic and doesn't make things up.
+- Customer details, bookings and confirmation emails are handled automatically.
+
+## How It Works
+
+### Part 1: AI Voice Assistant (ElevenLabs + n8n)
+
+The caller speaks to an **ElevenLabs voice agent**, which handles the conversation and sends requests to n8n through a webhook.
+
+| Node | What it does |
+
+| 1 | **Webhook (POST)** | Receives the request from the ElevenLabs agent |
+| 2 | **AI Agent** | Understands the request and decides which tool to use |
+| 3 | **OpenAI Chat Model** | The language model behind the agent's reasoning |
+| 4 | **Google Sheets: Append row** | Logs caller details and enquiries |
+| 5 | **Google Calendar: Create event** | Books appointments or callbacks |
+| 6 | **Gmail: Send message** | Sends a confirmation email to the customer |
+
+### Part 2: RAG Pipeline (Business Knowledge Base)
+
+**Ingestion (builds the knowledge base)**
+1. **Google Drive Trigger** fires whenever a new file is added to the knowledge-base folder.
+2. **Download file** pulls the file into the workflow.
+3. **Recursive Character Text Splitter** breaks the content into small chunks.
+4. **Default Data Loader** prepares the chunks as documents.
+5. **Embeddings OpenAI** converts each chunk into a vector.
+6. **Supabase Vector Store** stores the vectors for fast retrieval.
+
+**Retrieval (answers enquiries)**
+1. **When chat message received** starts the conversation.
+2. **AI Agent** searches the **Supabase Vector Store** as a tool to find the relevant business information.
+3. **OpenAI Chat Model** writes a clear, grounded reply.
+4. **Postgres Chat Memory** remembers earlier messages so the conversation flows naturally.
+
+## Tech Stack
+
+- **n8n** for workflow automation
+- **ElevenLabs** for the conversational voice agent
+- **OpenAI** for the chat model and embeddings
+- **Supabase (pgvector)** as the vector database
+- **Postgres** for chat memory
+- **Google Drive, Sheets, Calendar** and **Gmail** for integrations
+
+## Key Features
+
+- Voice agent that can answer all caller and customer enquiries
+- Retrieval-Augmented Generation (RAG) for accurate, business-specific answers
+- Self-updating knowledge base: drop a file in Drive and the agent learns it
+- Conversation memory for natural, multi-turn chats
+- Automatic logging, booking and email confirmation
+
+## Setup
+
+1. Import `workflow.json` into n8n.
+2. Add your own credentials (OpenAI, Supabase, Postgres, Google, Gmail).
+3. Point the Google Drive Trigger at your knowledge-base folder.
+4. In ElevenLabs, set the agent's webhook/tool URL to your n8n Webhook URL.
+
